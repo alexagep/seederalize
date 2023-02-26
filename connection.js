@@ -1,8 +1,8 @@
 const { Sequelize } = require("sequelize");
 
-const yargs = require("yargs/yargs");
-const { hideBin } = require("yargs/helpers");
-const argv = yargs(hideBin(process.argv)).argv;
+
+const { argv } = require("./argv");
+
 
 const config = {
   username: argv.u || argv.user || "postgres",

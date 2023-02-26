@@ -1,7 +1,7 @@
 {
   "name": "seederalize",
-  "version": "0.1.0",
-  "description": "",
+  "version": "0.2.0",
+  "description": "Generates seeder file for sequelize from existing databases",
   "main": "index.js",
   "scripts": {
     "db:init": "node -r esm -e 'require(\"./db/init\").initDatabase()'",
@@ -14,6 +14,10 @@
   },
   "keywords": [],
   "author": "Ali Aghapour",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alexagep/seederalize"
+  },
   "license": "ISC",
   "nodemonConfig": {
     "ignore": [

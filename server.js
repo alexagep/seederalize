@@ -22,7 +22,7 @@ const { folderName, checkFileExists } = require("./folder");
 const { Redis } = require("./redis");
 
 
-folderName("dbssssss");
+folderName("dbs");
 
 
 async function generateStructure() {
@@ -44,6 +44,8 @@ async function generateStructure() {
 
 async function catchRelIds() {
   const relations = await GetRelations();
+
+  console.log(relations);
 
   for (const rel of relations) {
     let arr = {};
@@ -422,25 +424,27 @@ async function sortModelsBasedOnRelations() {
   }
 }
 
-async function createFile() {
+async function createFile(count, folderName) {
   const tables = await sortModelsBasedOnRelations();
 
-  await createSeedAndInsert(5);
+  await createSeedAndInsert(count);
 
   let today = todayDate();
 
   tables.forEach(async (file) => {
     const randomNum = reservationCount();
 
+    const sturcture = await createSeedStructure(file)
+
     const lowerCaseFileName = file.toLowerCase();
-    const fileDest = checkFileExists(lowerCaseFileName, 'dbssssss');
+    const fileDest = checkFileExists(lowerCaseFileName, folderName);
 
     const fileName = !fileDest
-      ? `db/seeders/${today}${randomNum}-create-${lowerCaseFileName}.js`
-      : `db/seeders/${fileDest}`;
+      ? `${folderName}/seeders/${today}${randomNum}-create-${lowerCaseFileName}.js`
+      : `${folderName}/seeders/${fileDest}`;
 
-    fs.writeFile(fileName, `${await createSeedStructure(file)}`, () => {});
+    fs.writeFile(fileName, `${sturcture}`, () => {});
   });
 }
 
-createFile();
+createFile(5, 'dbs');
