@@ -1,0 +1,12 @@
+node_modules
+outgoing
+dist
+docs
+public
+uploads
+logs
+.env
+coverage
+pa
+dump.rdb
+sequelize-data.json
