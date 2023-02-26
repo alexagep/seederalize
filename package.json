@@ -1,0 +1,37 @@
+{
+  "name": "seederalize",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "db:init": "node -r esm -e 'require(\"./db/init\").initDatabase()'",
+    "db:drop": "node -r esm -e 'require(\"./db/drop\").dropDatabase()'",
+    "db:migrate": "node -r esm ./node_modules/.bin/sequelize-cli db:migrate",
+    "db:migrate:undo": "node -r esm ./node_modules/.bin/sequelize-cli db:migrate:undo",
+    "db:run:seed": "node -r esm ./node_modules/.bin/sequelize-cli db:seed:all",
+    "db:undo:seed": "node -r esm ./node_modules/.bin/sequelize-cli db:seed:undo:all",
+    "insertSeed": "node tesssst.js"
+  },
+  "keywords": [],
+  "author": "Ali Aghapour",
+  "license": "ISC",
+  "nodemonConfig": {
+    "ignore": [
+      "src/config/config.json",
+      "__tests__/*"
+    ],
+    "exitcrash": true
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "*",
+    "ioredis": "^5.3.0",
+    "pg": "^8.9.0",
+    "sequelize": "^6.28.0",
+    "sequelize-cli": "*",
+    "yargs": "^17.7.1"
+  },
+  "devDependencies": {
+    "esm": "3.2.25"
+  }
+}

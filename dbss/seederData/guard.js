@@ -1,0 +1,21 @@
+import { randomUUID } from 'crypto'
+
+
+export const guardId = randomUUID()
+export const guardId2 = randomUUID()
+export const guardId3= randomUUID()
+export const guardId4 = randomUUID()
+export const guardId5 = randomUUID()
+export const guardId6 = randomUUID()
+export const guardId7 = randomUUID()
+export const guardId8 = randomUUID()
+export const guardId9 = randomUUID()
+export const guardId10 = randomUUID()
+export const guardId11 = randomUUID()
+export const guardId12 = randomUUID()
+export const guardId13 = randomUUID()
+export const guardId14 = randomUUID()
+export const guardId15 = randomUUID()
+export const guardId16 = randomUUID()
+export const guardId17 = randomUUID()
+export const guardId18 = randomUUID()
