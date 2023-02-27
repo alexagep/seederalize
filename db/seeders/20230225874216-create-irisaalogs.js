@@ -4,7 +4,7 @@
   
       await queryInterface.bulkInsert(
         'IrisaaLogs',
-          [{"id":"e88814b5-e95b-446d-908d-90563d0d9b19","guard_id":"641e38ae-0dca-449f-8d60-d095ad02ae91","user_id":"97b0deee-f841-4dbd-814a-4c7f17f2722a","status":"success","data":"{}","updated_at":"2023-02-27T11:11:01.260Z","created_at":"2023-02-27T11:11:01.260Z"}],
+          [{"guard_id":"12fc6e7b-a863-47e4-a38a-a67a273c23d7","user_id":"2d9d4516-eec7-4cb7-bf5a-dacee4817a6a","status":"success","data":"{}","updated_at":"2023-02-27T18:59:39.329Z","created_at":"2023-02-27T18:59:39.329Z","id":"ddd894a3-86e9-4e1b-9bc0-281c0cfa9b5c"}],
         {}
       )
     },

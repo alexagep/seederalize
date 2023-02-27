@@ -1,1 +1,0 @@
-const { argv } = require("./index");

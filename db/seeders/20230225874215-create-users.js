@@ -4,7 +4,7 @@
   
       await queryInterface.bulkInsert(
         'Users',
-          [{"updated_at":"2023-02-27T11:11:01.261Z","id":"97b0deee-f841-4dbd-814a-4c7f17f2722a","created_at":"2023-02-27T11:11:01.261Z","image_path":"nSUTjwWLT6","first_name":"gxgBdDwQRY","last_name":"QzxAHtOMmu","role":"maintainer","national_code":"4031559532"}],
+          [{"id":"2d9d4516-eec7-4cb7-bf5a-dacee4817a6a","created_at":"2023-02-27T18:59:39.329Z","updated_at":"2023-02-27T18:59:39.329Z","first_name":"HPLtVYISIY","last_name":"BkARcjkkbu","image_path":"lXlnuGa8Cx","role":"developer","national_code":"8356227844"}],
         {}
       )
     },

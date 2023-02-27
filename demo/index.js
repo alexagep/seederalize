@@ -1,8 +1,3 @@
-#!/usr/bin/env node
-'use strict';
-
-
-
 const { createFile } = require('../src/server')
 
 createFile();
