@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.0
+
+* removed unnecessary files and directories
+
+
 ## 0.2.0
 
 * removed unnecessary files and directories

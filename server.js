@@ -1,6 +1,7 @@
 const {
   reservationCount,
   todayDate,
+  packageVersion,
   randomUUID,
   randomNumber,
   randomName,
@@ -20,9 +21,20 @@ const fs = require("fs");
 const { genSaltSync, hashSync } = require("bcryptjs");
 const { folderName, checkFileExists } = require("./folder");
 const { Redis } = require("./redis");
+const { argv } = require("./argv");
+const packagejson = require('./package.json');
+const option = {
+  output: argv.o || argv.output || "db",
+  count: argv.c || argv.count || 1,
+  version: argv.v || argv.version
+}
+
+if (option.version) {
+  packageVersion()
+}
 
 
-folderName("dbs");
+folderName(option.output);
 
 
 async function generateStructure() {
@@ -44,8 +56,6 @@ async function generateStructure() {
 
 async function catchRelIds() {
   const relations = await GetRelations();
-
-  console.log(relations);
 
   for (const rel of relations) {
     let arr = {};
@@ -447,4 +457,4 @@ async function createFile(count, folderName) {
   });
 }
 
-createFile(5, 'dbs');
+createFile(option.count, option.output);

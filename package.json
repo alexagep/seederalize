@@ -1,16 +1,18 @@
 {
   "name": "seederalize",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Generates seeder file for sequelize from existing databases",
-  "main": "index.js",
+  "main": "server.js",
+  "bin": {
+    "seederalize": "./bin/seederalize"
+  },
   "scripts": {
     "db:init": "node -r esm -e 'require(\"./db/init\").initDatabase()'",
     "db:drop": "node -r esm -e 'require(\"./db/drop\").dropDatabase()'",
     "db:migrate": "node -r esm ./node_modules/.bin/sequelize-cli db:migrate",
     "db:migrate:undo": "node -r esm ./node_modules/.bin/sequelize-cli db:migrate:undo",
     "db:run:seed": "node -r esm ./node_modules/.bin/sequelize-cli db:seed:all",
-    "db:undo:seed": "node -r esm ./node_modules/.bin/sequelize-cli db:seed:undo:all",
-    "insertSeed": "node tesssst.js"
+    "db:undo:seed": "node -r esm ./node_modules/.bin/sequelize-cli db:seed:undo:all"
   },
   "keywords": [],
   "author": "Ali Aghapour",

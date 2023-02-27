@@ -1,3 +1,7 @@
+const packagejson = require('./package.json');
+
+
+
 const randomRole = (n) => {
   const array = ["guard", "user", "admin", "hr", "developer", "maintainer"];
 
@@ -104,9 +108,14 @@ function getEnumValue(values) {
   return random[0];
 }
 
+const packageVersion = () => {
+  console.log(`${packagejson.name}@${packagejson.version}`);
+}
+
 module.exports = {
   reservationCount,
   todayDate,
+  packageVersion,
   randomUUID,
   randomNumber,
   randomName,
