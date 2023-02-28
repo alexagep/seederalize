@@ -33,10 +33,6 @@ if (option.version) {
   packageVersion()
 }
 
-
-// folderName(option.output);
-
-
 async function generateStructure() {
   const relations = await GetRelations();
   await catchRelIds();

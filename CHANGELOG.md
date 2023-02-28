@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.6.0
+
+* modifying main file address in package.json
 ## 0.5.0
 
 * adding process killer function 
