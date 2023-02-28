@@ -1,6 +1,6 @@
 {
   "name": "seederalize",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Generates seeder file for sequelize from existing databases",
   "main": "server.js",
   "bin": {

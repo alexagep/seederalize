@@ -6,3 +6,10 @@
 const { createFile } = require('../src/server')
 
 createFile();
+
+
+
+setTimeout((function() {
+    return process.exit(0)
+}), 3000);
+
