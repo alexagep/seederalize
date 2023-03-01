@@ -1,10 +1,16 @@
-# Form-Data [![NPM Module](https://img.shields.io/badge/npm%20package-0.5.0-red)](https://github.com/alexagep/seederalize)
+# Form-Data [![NPM Module](https://img.shields.io/badge/npm%20package-0.6.0-red)](https://github.com/alexagep/seederalize)
 
 ***
 Generates seed files for Sequelize from existing databases.
 Supported db engines till now:
 * PostgreSQL
 * MySQL
+
+## Installation
+### Global module
+To install module globally simply type npm i -g seederalize in your console.
+
+
 
 ## Usage 
 There are two ways to use this utility:

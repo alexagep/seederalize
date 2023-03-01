@@ -26,11 +26,22 @@ const { argv } = require("../utils/argv");
 const option = {
   output: argv.o || argv.output || "db",
   count: argv.c || argv.count || 1,
-  version: argv.v || argv.version
+  version: argv.v || argv.version,
+  username: argv.u || argv.user || "postgres",
+  password: argv.x || argv.pass || "postgres",
+  database: argv.d || argv.database || "",
+  host: argv.h || argv.host || "localhost",
+  dialect: argv.e || argv.engine || "postgres",
+  logging: argv.l || argv.logging || false,
+  port: argv.p || argv.port || 5432,
 }
 
 if (option.version) {
   packageVersion()
+}
+
+async function generate(arg) {
+  
 }
 
 async function generateStructure() {
@@ -430,7 +441,9 @@ async function sortModelsBasedOnRelations() {
   }
 }
 
-async function createFile(count = option.count, folderName = option.output) {
+async function createFile(arg = option) {
+  const count = arg.count
+  const folderName = arg.output
   const tables = await sortModelsBasedOnRelations();
 
   await createSeedAndInsert(count);

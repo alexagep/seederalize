@@ -1,5 +1,8 @@
 # Changelog
+## 0.7.0
 
+* adding demo directory
+* implementation of using package by cli commands
 ## 0.6.0
 
 * modifying main file address in package.json
