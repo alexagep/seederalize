@@ -1,6 +1,6 @@
-const { sequelize } = require("../../config/connection");
+// const { sequelize } = require("../../config/connection");
 
-async function GetAllTables() {
+async function GetAllTables(sequelize) {
   const response =
     await sequelize.query(`SELECT table_schema as "TABLE_SCHEMA", table_name as "TABLE_NAME", table_catalog as "DB_NAME"
     from INFORMATION_SCHEMA.TABLES
@@ -18,7 +18,7 @@ async function GetAllTables() {
   return tables;
 }
 
-async function GetCoulmnsFromEntity() {
+async function GetCoulmnsFromEntity(sequelize) {
   const ret = {};
 
   const response =
@@ -55,7 +55,8 @@ async function GetCoulmnsFromEntity() {
   return ret;
 }
 
-async function GetRelations() {
+async function GetRelations(sequelize) {
+  console.log(sequelize);
   const response = await sequelize.query(`SELECT DISTINCT
     con.relname AS tablewithforeignkey,
     att.attnum as fk_partno,

@@ -2,14 +2,24 @@
 'use strict';
 
 
+const { argv } = require("../utils/argv");
 
-const { createFile } = require('../src/server')
+const argument = process.argv.splice(2)
 
-createFile();
+const version = ['--version', '-v']
+
+const config = require('../config/config');
 
 
+if (version.includes(argument[0])) {
+    require('../utils/utils').packageVersion()
+} else if (argument[0] === '--help') {
+    require('../utils/utils').showingHelp()
+} else {
+    require('../src/server').createFile(config)
+}
 
-setTimeout((function() {
+setTimeout((function () {
     return process.exit(0)
 }), 3000);
 

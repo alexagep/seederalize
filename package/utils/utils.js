@@ -112,9 +112,33 @@ const packageVersion = () => {
   console.log(`${packagejson.name}@${packagejson.version}`);
 }
 
+const showingHelp = () => {
+  // console.log('******');
+  const help = `
+    Usage: seederalize -h <host> -d <database> -p [port] -u <user> -x [password] -e [engine]
+
+    Options:
+      --help                 Show help command line options            
+      -v, --version          Show version number                         
+      -h, --host             IP address/Hostname for database server
+                                                            [default: "127.0.0.1" or "localhost"]
+      -d, --database         Database name                             [required] 
+      -u, --user             Username for database server              [default: "postgres"]
+      -x, --pass             Password for database server              [default: "postgres"]
+      -p, --port             Port number for database server           [default: 5432]
+      -e, --engine           Database engine     
+                                        [choices: "postgres", "mysql"]  [default: "postgres"]
+      -o, --output           Where to place generated models   [default: "./db"]
+      -l, --logging          logging option when composing a query object   [default: false] [boolean]
+      `
+
+  console.log(help);
+}
+
 module.exports = {
   reservationCount,
   todayDate,
+  showingHelp,
   packageVersion,
   randomUUID,
   randomNumber,

@@ -1,7 +1,7 @@
 const { Sequelize } = require("sequelize");
 
 
-const config = require('./config');
+// const config = require('./config');
 
 
 const sequelize = new Sequelize(
@@ -12,10 +12,10 @@ const sequelize = new Sequelize(
     host: config.host,
     dialect: config.dialect,
     port: config.port,
-    logging: false,
+    logging: config.logging,
   }
 );
 
-console.log(config);
+// console.log(config);
 
 module.exports = { sequelize };

@@ -8,7 +8,8 @@ const {
   randomEmail,
   randomUsername,
   randomRole,
-  getEnumValue
+  getEnumValue,
+  showingHelp
 } = require("../utils/utils");
 
 const {
@@ -17,11 +18,15 @@ const {
   GetRelations,
 } = require("../db/services/queries");
 
+// const {showingHelp} = require("../test");
+
 const fs = require("fs");
 const { genSaltSync, hashSync } = require("bcryptjs");
 const { namingFolder, checkFileExists } = require("../utils/folder");
 const { Redis } = require("../utils/redis");
 const { argv } = require("../utils/argv");
+
+const {fillUpConfigObj} = require("../config/config");
 
 const option = {
   output: argv.o || argv.output || "db",
@@ -34,16 +39,17 @@ const option = {
   dialect: argv.e || argv.engine || "postgres",
   logging: argv.l || argv.logging || false,
   port: argv.p || argv.port || 5432,
+  helps: argv.helps
 }
+// console.log(option.helps);
 
-if (option.version) {
-  packageVersion()
-}
-
-async function generate(arg) {
-  
-}
-
+// if (argv.v || argv.version) {
+//   packageVersion()
+// } else if (option.helps) {
+//   console.log('*****************');
+//   showingHelp()
+// }
+// } else {
 async function generateStructure() {
   const relations = await GetRelations();
   await catchRelIds();
@@ -95,17 +101,17 @@ function createModelStructure(model) {
   const singularModel = model.slice(0, -1);
 
   const structure = `export default (sequelize, DataTypes) => {
-    const ${singularModel} = sequelize.define(${model}, {
-      name: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      }
-    },
-    {
-      paranoid: true,
-    });
-    return ${singularModel};
-  };`;
+      const ${singularModel} = sequelize.define(${model}, {
+        name: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        }
+      },
+      {
+        paranoid: true,
+      });
+      return ${singularModel};
+    };`;
 
   return structure;
 }
@@ -132,20 +138,20 @@ async function createSeedStructure(model) {
   const objType = JSON.parse(await Redis.getData(model));
 
   const structure = `
-  export default {
-    async up(queryInterface) {
-  
-      await queryInterface.bulkInsert(
-        '${model}',
-          ${JSON.stringify(objType)},
-        {}
-      )
-    },
-  
-    async down(queryInterface) {
-      await queryInterface.bulkDelete('${model}', null, {})
-    },
-  }`;
+    export default {
+      async up(queryInterface) {
+    
+        await queryInterface.bulkInsert(
+          '${model}',
+            ${JSON.stringify(objType)},
+          {}
+        )
+      },
+    
+      async down(queryInterface) {
+        await queryInterface.bulkDelete('${model}', null, {})
+      },
+    }`;
 
   return structure;
 }
@@ -418,11 +424,11 @@ function MatchColumnTypes(col) {
   return dataType;
 }
 
-async function sortModelsBasedOnRelations() {
+async function sortModelsBasedOnRelations(sequelize) {
   try {
-    const relations = await GetRelations();
+    const relations = await GetRelations(sequelize);
 
-    const tables = await GetAllTables();
+    const tables = await GetAllTables(sequelize);
 
     for (let i = 0; i < relations.length; i++) {
       const fkIndex = tables.indexOf(relations[i].tablewithforeignkey);
@@ -442,9 +448,16 @@ async function sortModelsBasedOnRelations() {
 }
 
 async function createFile(arg = option) {
+
+  // console.log(arg);
+
+  const sequelize = fillUpConfigObj(arg)
+
+  console.log(sequelize);
+
   const count = arg.count
   const folderName = arg.output
-  const tables = await sortModelsBasedOnRelations();
+  const tables = await sortModelsBasedOnRelations(sequelize);
 
   await createSeedAndInsert(count);
 
@@ -472,4 +485,7 @@ async function createFile(arg = option) {
 // createFile(option.count, option.output);
 
 
-module.exports = { createFile };
+  module.exports = { createFile };
+// }
+
+
