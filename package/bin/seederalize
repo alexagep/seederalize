@@ -19,7 +19,3 @@ if (version.includes(argument[0])) {
     require('../src/server').createFile(config)
 }
 
-setTimeout((function () {
-    return process.exit(0)
-}), 3000);
-

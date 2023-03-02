@@ -1,8 +1,8 @@
 // const { sequelize } = require("../../config/connection");
 
-async function GetAllTables(sequelize) {
+async function GetAllTables(db) {
   const response =
-    await sequelize.query(`SELECT table_schema as "TABLE_SCHEMA", table_name as "TABLE_NAME", table_catalog as "DB_NAME"
+    await db.sequelize.query(`SELECT table_schema as "TABLE_SCHEMA", table_name as "TABLE_NAME", table_catalog as "DB_NAME"
     from INFORMATION_SCHEMA.TABLES
     WHERE TABLE_TYPE = 'BASE TABLE'
     AND table_schema not in ('pg_catalog', 'information_schema');
@@ -18,11 +18,11 @@ async function GetAllTables(sequelize) {
   return tables;
 }
 
-async function GetCoulmnsFromEntity(sequelize) {
+async function GetCoulmnsFromEntity(db) {
   const ret = {};
 
   const response =
-    await sequelize.query(`SELECT table_name,column_name,udt_name,column_default,is_nullable,
+    await db.sequelize.query(`SELECT table_name,column_name,udt_name,column_default,is_nullable,
                       data_type,character_maximum_length,numeric_precision,numeric_scale,
                       case when column_default LIKE 'nextval%' then 'YES' else 'NO' end isidentity,
                       is_identity,
@@ -55,9 +55,9 @@ async function GetCoulmnsFromEntity(sequelize) {
   return ret;
 }
 
-async function GetRelations(sequelize) {
-  console.log(sequelize);
-  const response = await sequelize.query(`SELECT DISTINCT
+async function GetRelations(db) {
+  // console.log(sequelize);
+  const response = await db.sequelize.query(`SELECT DISTINCT
     con.relname AS tablewithforeignkey,
     att.attnum as fk_partno,
          att2.attname AS foreignkeycolumn,

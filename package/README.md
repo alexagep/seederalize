@@ -1,4 +1,4 @@
-# Form-Data [![NPM Module](https://img.shields.io/badge/npm%20package-0.6.0-red)](https://github.com/alexagep/seederalize)
+# Form-Data [![NPM Module](https://img.shields.io/badge/npm%20package-0.8.0-red)](https://github.com/alexagep/seederalize)
 
 ***
 Generates seed files for Sequelize from existing databases.

@@ -1,4 +1,8 @@
 # Changelog
+## 0.8.0
+
+* modifying connection function and its queries by passing sequelize object
+* implementation of using package by calling createFile function
 ## 0.7.0
 
 * adding demo directory

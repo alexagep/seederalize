@@ -26,7 +26,7 @@ const { namingFolder, checkFileExists } = require("../utils/folder");
 const { Redis } = require("../utils/redis");
 const { argv } = require("../utils/argv");
 
-const {fillUpConfigObj} = require("../config/config");
+const { fillUpConfigObj } = require("../config/connection");
 
 const option = {
   output: argv.o || argv.output || "db",
@@ -50,9 +50,9 @@ const option = {
 //   showingHelp()
 // }
 // } else {
-async function generateStructure() {
-  const relations = await GetRelations();
-  await catchRelIds();
+async function generateStructure(db) {
+  const relations = await GetRelations(db);
+  await catchRelIds(db);
 
   for (const rel of relations) {
     const refObjType = JSON.parse(await Redis.getData(rel.tablewithforeignkey));
@@ -67,8 +67,8 @@ async function generateStructure() {
   }
 }
 
-async function catchRelIds() {
-  const relations = await GetRelations();
+async function catchRelIds(db) {
+  const relations = await GetRelations(db);
 
   for (const rel of relations) {
     let arr = {};
@@ -85,11 +85,11 @@ async function catchRelIds() {
   }
 }
 
-async function createSeedAndInsert(count) {
-  const models = await GetAllTables();
+async function createSeedAndInsert(count, db) {
+  const models = await GetAllTables(db);
 
   models.forEach(async (model) => {
-    const obj = await seedTypeStructure(model);
+    const obj = await seedTypeStructure(model, db);
 
     const objType = generateSeedData(obj[model], count);
 
@@ -116,8 +116,8 @@ function createModelStructure(model) {
   return structure;
 }
 
-async function seedTypeStructure(model) {
-  let columns = await GetCoulmnsFromEntity();
+async function seedTypeStructure(model, db) {
+  let columns = await GetCoulmnsFromEntity(db);
 
   const column = columns[model];
 
@@ -132,8 +132,8 @@ async function seedTypeStructure(model) {
   return { [model]: obj };
 }
 
-async function createSeedStructure(model) {
-  await generateStructure();
+async function createSeedStructure(model, db) {
+  await generateStructure(db);
 
   const objType = JSON.parse(await Redis.getData(model));
 
@@ -424,11 +424,11 @@ function MatchColumnTypes(col) {
   return dataType;
 }
 
-async function sortModelsBasedOnRelations(sequelize) {
+async function sortModelsBasedOnRelations(db) {
   try {
-    const relations = await GetRelations(sequelize);
+    const relations = await GetRelations(db);
 
-    const tables = await GetAllTables(sequelize);
+    const tables = await GetAllTables(db);
 
     for (let i = 0; i < relations.length; i++) {
       const fkIndex = tables.indexOf(relations[i].tablewithforeignkey);
@@ -449,27 +449,23 @@ async function sortModelsBasedOnRelations(sequelize) {
 
 async function createFile(arg = option) {
 
-  // console.log(arg);
-
-  const sequelize = fillUpConfigObj(arg)
-
-  console.log(sequelize);
+  const db = fillUpConfigObj(arg)
 
   const count = arg.count
   const folderName = arg.output
-  const tables = await sortModelsBasedOnRelations(sequelize);
 
-  await createSeedAndInsert(count);
+  const tables = await sortModelsBasedOnRelations(db);
+
+  await createSeedAndInsert(count, db);
 
   namingFolder(folderName);
-
 
   let today = todayDate();
 
   tables.forEach(async (file) => {
     const randomNum = reservationCount();
 
-    const sturcture = await createSeedStructure(file)
+    const sturcture = await createSeedStructure(file, db)
 
     const lowerCaseFileName = file.toLowerCase();
     const fileDest = checkFileExists(lowerCaseFileName, folderName);
@@ -482,10 +478,12 @@ async function createFile(arg = option) {
   });
 }
 
-// createFile(option.count, option.output);
+
+setTimeout((function () {
+  return process.exit(0)
+}), 3000);
 
 
-  module.exports = { createFile };
-// }
+module.exports = { createFile };
 
 

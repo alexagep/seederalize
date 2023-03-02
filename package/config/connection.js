@@ -1,21 +1,34 @@
+
 const { Sequelize } = require("sequelize");
 
+const config = require('./config');
 
-// const config = require('./config');
+function fillUpConfigObj(option) {
+  
+  const db = {}
 
-
-const sequelize = new Sequelize(
-  config.database,
-  config.username,
-  config.password,
-  {
-    host: config.host,
-    dialect: config.dialect,
-    port: config.port,
-    logging: config.logging,
+  for (const key in config) {
+    if (option[key]) {
+      config[key] = option[key];
+    }
   }
-);
 
-// console.log(config);
+  const sequelize = new Sequelize(
+    config.database,
+    config.username,
+    config.password,
+    {
+      host: config.host,
+      dialect: config.dialect,
+      port: config.port,
+      logging: config.logging,
+    }
+  );
 
-module.exports = { sequelize };
+  db.sequelize = sequelize
+  db.Sequelize = Sequelize
+
+  return db
+}
+
+module.exports = { fillUpConfigObj }
