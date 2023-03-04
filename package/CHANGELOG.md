@@ -1,4 +1,7 @@
 # Changelog
+## 0.8.1
+
+* modifying README file
 ## 0.8.0
 
 * modifying connection function and its queries by passing sequelize object
