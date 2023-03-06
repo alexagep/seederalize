@@ -1,28 +1,40 @@
 // const { sequelize } = require("../../config/connection");
 
-async function GetAllTables(db) {
-  const response =
-    await db.sequelize.query(`SELECT table_schema as "TABLE_SCHEMA", table_name as "TABLE_NAME", table_catalog as "DB_NAME"
+class Queries {
+
+  static async getData (db) {
+    const tables = await this.GetAllTables(db) 
+    const columns = await this.GetCoulmnsFromEntity(db) 
+    const relations = await this.GetRelations(db)
+
+    return {
+      tables, columns, relations
+    }
+  }
+
+  static async GetAllTables(db) {
+    const response = await db.sequelize
+      .query(`SELECT table_schema as "TABLE_SCHEMA", table_name as "TABLE_NAME", table_catalog as "DB_NAME"
     from INFORMATION_SCHEMA.TABLES
     WHERE TABLE_TYPE = 'BASE TABLE'
     AND table_schema not in ('pg_catalog', 'information_schema');
    `);
 
-  const tables = [];
-  response[0].forEach((val) => {
-    if (val.TABLE_NAME !== "SequelizeMeta") {
-      tables.push(val.TABLE_NAME);
-    }
-  });
+    const tables = [];
+    response[0].forEach((val) => {
+      if (val.TABLE_NAME !== "SequelizeMeta") {
+        tables.push(val.TABLE_NAME);
+      }
+    });
 
-  return tables;
-}
+    return tables;
+  }
 
-async function GetCoulmnsFromEntity(db) {
-  const ret = {};
+  static async GetCoulmnsFromEntity(db) {
+    const ret = {};
 
-  const response =
-    await db.sequelize.query(`SELECT table_name,column_name,udt_name,column_default,is_nullable,
+    const response = await db.sequelize
+      .query(`SELECT table_name,column_name,udt_name,column_default,is_nullable,
                       data_type,character_maximum_length,numeric_precision,numeric_scale,
                       case when column_default LIKE 'nextval%' then 'YES' else 'NO' end isidentity,
                       is_identity,
@@ -46,18 +58,17 @@ async function GetCoulmnsFromEntity(db) {
                       where table_schema not in ('pg_catalog', 'information_schema');
                       `);
 
-  response[0].map((val) => {
-    if (val.table_name !== "SequelizeMeta") {
-      (ret[val.table_name] || (ret[val.table_name] = [])).push(val);
-    }
-  });
+    response[0].map((val) => {
+      if (val.table_name !== "SequelizeMeta") {
+        (ret[val.table_name] || (ret[val.table_name] = [])).push(val);
+      }
+    });
 
-  return ret;
-}
+    return ret;
+  }
 
-async function GetRelations(db) {
-  // console.log(sequelize);
-  const response = await db.sequelize.query(`SELECT DISTINCT
+  static async GetRelations(db) {
+    const response = await db.sequelize.query(`SELECT DISTINCT
     con.relname AS tablewithforeignkey,
     att.attnum as fk_partno,
          att2.attname AS foreignkeycolumn,
@@ -98,8 +109,10 @@ async function GetRelations(db) {
         AND rc.constraint_name= con.conname AND constraint_catalog=current_database() AND rc.constraint_schema=nspname
         `);
 
-  // console.log(response[0], "***************");
-  return response[0];
+    // console.log(response[0], "***************");
+    return response[0];
+  }
 }
 
-module.exports = { GetAllTables, GetCoulmnsFromEntity, GetRelations };
+
+module.exports = { Queries };

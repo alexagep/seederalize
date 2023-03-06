@@ -1,4 +1,7 @@
 # Changelog
+## 0.8.2
+
+* debugging methods to enhace speed of processing 
 ## 0.8.1
 
 * modifying README file

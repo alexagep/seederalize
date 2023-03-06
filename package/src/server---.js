@@ -9,10 +9,14 @@ const {
   randomUsername,
   randomRole,
   getEnumValue,
-  showingHelp,
+  showingHelp
 } = require("../utils/utils");
 
-const { Queries } = require("../db/services/queries");
+const {
+  GetAllTables,
+  GetCoulmnsFromEntity,
+  GetRelations,
+} = require("../db/services/queries");
 
 // const {showingHelp} = require("../test");
 
@@ -24,28 +28,73 @@ const { argv } = require("../utils/argv");
 
 const { fillUpConfigObj } = require("../config/connection");
 
-async function generateStructure(relations) {
+// const option = {
+//   output: argv.o || argv.output || "db",
+//   count: argv.c || argv.count || 1,
+//   version: argv.v || argv.version,
+//   username: argv.u || argv.user || "postgres",
+//   password: argv.x || argv.pass || "postgres",
+//   database: argv.d || argv.database || "",
+//   host: argv.h || argv.host || "localhost",
+//   dialect: argv.e || argv.engine || "postgres",
+//   logging: argv.l || argv.logging || false,
+//   port: argv.p || argv.port || 5432,
+//   helps: argv.helps
+// }
+// console.log(option.helps);
+
+// if (argv.v || argv.version) {
+//   packageVersion()
+// } else if (option.helps) {
+//   console.log('*****************');
+//   showingHelp()
+// }
+// } else {
+async function generateStructure(db) {
+  const relations = await GetRelations(db);
+  await catchRelIds(db);
 
   for (const rel of relations) {
+    const refObjType = JSON.parse(await Redis.getData(rel.tablewithforeignkey));
 
-    const tableForeignKey = JSON.parse(
-      await Redis.getData(rel.tablewithforeignkey)
-    );
+    const fkColumn = JSON.parse(await Redis.getData(rel.foreignkeycolumn));
 
-    const tableReferenced = JSON.parse(
-      await Redis.getData(rel.tablereferenced)
-    );
-
-    for (let i = 0; i < tableForeignKey.length; i++) {
-      tableForeignKey[i][rel.foreignkeycolumn] =
-        tableReferenced[i][rel.foreignkeycolumnreferenced];
+    for (const obj of refObjType) {
+      obj[rel.foreignkeycolumn] = getEnumValue(fkColumn);
     }
 
-    await Redis.setData(
-      rel.tablewithforeignkey,
-      JSON.stringify(Object.values(tableForeignKey))
-    );
+    await Redis.setData(rel.tablewithforeignkey, JSON.stringify(refObjType));
   }
+}
+
+async function catchRelIds(db) {
+  const relations = await GetRelations(db);
+
+  for (const rel of relations) {
+    let arr = {};
+
+    const insertedRef = JSON.parse(await Redis.getData(rel.tablereferenced));
+
+    for (const ref of insertedRef) {
+      (arr[rel.foreignkeycolumn] || (arr[rel.foreignkeycolumn] = [])).push(
+        ref[rel.foreignkeycolumnreferenced]
+      );
+    }
+
+    await Redis.setData(Object.keys(arr)[0], JSON.stringify(Object.values(arr)[0]));
+  }
+}
+
+async function createSeedAndInsert(count, db) {
+  const models = await GetAllTables(db);
+
+  models.forEach(async (model) => {
+    const obj = await seedTypeStructure(model, db);
+
+    const objType = generateSeedData(obj[model], count);
+
+    await Redis.setData(model, JSON.stringify(objType));
+  });
 }
 
 function createModelStructure(model) {
@@ -67,7 +116,9 @@ function createModelStructure(model) {
   return structure;
 }
 
-async function seedTypeStructure(model, columns) {
+async function seedTypeStructure(model, db) {
+  let columns = await GetCoulmnsFromEntity(db);
+
   const column = columns[model];
 
   const obj = {};
@@ -78,10 +129,12 @@ async function seedTypeStructure(model, columns) {
     }
   });
 
-  return obj;
+  return { [model]: obj };
 }
 
-async function createSeedStructure(model) {
+async function createSeedStructure(model, db) {
+  await generateStructure(db);
+
   const objType = JSON.parse(await Redis.getData(model));
 
   const structure = `
@@ -103,54 +156,49 @@ async function createSeedStructure(model) {
   return structure;
 }
 
-async function generateSeedData(models, columns, count) {
-  models.forEach(async (model) => {
-    const obj = await seedTypeStructure(model, columns);
+function generateSeedData(obj, count) {
+  const objArr = [];
 
-    const objArr = [];
+  const now = new Date()
+  for (let i = 0; i < count; i++) {
+    let newObj = {};
+    const randomString = randomUsername(10);
 
-    const now = new Date();
-    for (let i = 0; i < count; i++) {
-      let newObj = {};
-      const randomString = randomUsername(10);
-
-      for (const key in obj) {
-        if (obj[key] === "UUID") {
-          newObj[key] = randomUUID();
-        } else if (obj[key] === "JSONB" || obj[key] === "JSON") {
-          newObj[key] = "{}";
-        } else if (obj[key] === "Date") {
-          newObj[key] = new Date().toISOString();
-        } else if (key === "password") {
-          newObj[key] = hashSync(randomString, genSaltSync(12));
-        } else if (key === "role") {
-          newObj[key] = randomRole(1);
-        } else if (key === "roles") {
-          newObj[key] = randomRole(2);
-        } else if (key.toLowerCase() === "username") {
-          newObj[key] = randomString;
-        } else if (key.includes("name") && key != "username") {
-          newObj[key] = randomName(10);
-        } else if (
-          (obj[key] === "STRING" && key.includes("number")) ||
-          (obj[key] === "STRING" && key.includes("code"))
-        ) {
-          newObj[key] = randomNumber(10);
-        } else if (key.includes("email")) {
-          newObj[key] = randomEmail();
-        } else if (obj[key] === "STRING") {
-          newObj[key] = randomString;
-        } else if (Array.isArray(obj[key])) {
-          newObj[key] = getEnumValue(obj[key]);
-        }
+    for (const key in obj) {
+      if (obj[key] === "UUID") {
+        newObj[key] = randomUUID();
+      } else if (obj[key] === "JSONB" || obj[key] === "JSON") {
+        newObj[key] = "{}";
+      } else if (obj[key] === "Date") {
+        newObj[key] = new Date().toISOString();
+      } else if (key === "password") {
+        newObj[key] = hashSync(randomString, genSaltSync(12));
+      } else if (key === "role") {
+        newObj[key] = randomRole(1);
+      } else if (key === "roles") {
+        newObj[key] = randomRole(2);
+      } else if (key.toLowerCase() === "username") {
+        newObj[key] = randomString;
+      } else if (key.includes("name") && key != "username") {
+        newObj[key] = randomName(10);
+      } else if (
+        (obj[key] === "STRING" && key.includes("number")) ||
+        (obj[key] === "STRING" && key.includes("code"))
+      ) {
+        newObj[key] = randomNumber(10);
+      } else if (key.includes("email")) {
+        newObj[key] = randomEmail();
+      } else if (obj[key] === "STRING") {
+        newObj[key] = randomString;
+      } else if (Array.isArray(obj[key])) {
+        newObj[key] = getEnumValue(obj[key]);
       }
-
-      objArr.push(newObj);
     }
-    console.log(new Date() - now);
-
-    await Redis.setData(model, JSON.stringify(objArr));
-  });
+    // console.log(i);
+    objArr.push(newObj);
+  }
+  console.log(new Date() - now);
+  return objArr;
 }
 
 function MatchColumnTypes(col) {
@@ -379,8 +427,12 @@ function MatchColumnTypes(col) {
   return dataType;
 }
 
-async function sortModelsBasedOnRelations(relations, tables) {
+async function sortModelsBasedOnRelations(db) {
   try {
+    const relations = await GetRelations(db);
+
+    const tables = await GetAllTables(db);
+
     for (let i = 0; i < relations.length; i++) {
       const fkIndex = tables.indexOf(relations[i].tablewithforeignkey);
       const refIndex = tables.indexOf(relations[i].tablereferenced);
@@ -399,42 +451,42 @@ async function sortModelsBasedOnRelations(relations, tables) {
 }
 
 async function createFile(arg) {
-  const db = fillUpConfigObj(arg);
 
-  const count = arg.count,
-    folderName = arg.output,
-    dbData = await Queries.getData(db),
-    relations = dbData.relations,
-    models = dbData.tables,
-    columns = dbData.columns,
-    tables = await sortModelsBasedOnRelations(relations, models);
+  const db = fillUpConfigObj(arg)
 
-  await generateSeedData(models, columns, count);
-  
-  await generateStructure(relations);
+  const count = arg.count
+  const folderName = arg.output
+
+  const tables = await sortModelsBasedOnRelations(db);
+
+  await createSeedAndInsert(count, db);
 
   namingFolder(folderName);
 
   let today = todayDate();
 
-  tables.forEach(async (table) => {
+  tables.forEach(async (file) => {
     const randomNum = reservationCount();
- 
-    const sturcture = await createSeedStructure(table);
 
-    const lowerCaseFileName = table.toLowerCase();
+    const sturcture = await createSeedStructure(file, db)
+
+    const lowerCaseFileName = file.toLowerCase();
     const fileDest = checkFileExists(lowerCaseFileName, folderName);
 
     const fileName = !fileDest
       ? `${folderName}/seeders/${today}${randomNum}-create-${lowerCaseFileName}.js`
       : `${folderName}/seeders/${fileDest}`;
 
-    fs.writeFile(fileName, `${sturcture}`, () => {});
+    fs.writeFile(fileName, `${sturcture}`, () => { });
   });
 }
+
 
 // setTimeout((function () {
 //   return process.exit(0)
 // }), 3000);
 
+
 module.exports = { createFile };
+
+
