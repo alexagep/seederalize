@@ -1,4 +1,8 @@
 # Changelog
+## 0.9.1
+* updated bin/seederalize file to avoid problems with cli commands error handling
+* renamed server file as main file to index file
+* added prettier package to dev dependencies
 ## 0.9.0
 
 *  updated extractDataFromObj method to use md5 algorithm instead of bcrypt package for enhancing process speed and better performance

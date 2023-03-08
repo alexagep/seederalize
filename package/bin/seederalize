@@ -10,8 +10,8 @@ const config = require("../config/config");
 
 if (argument[0] === "--desc") {
   Utils.showingHelp();
-} else if (argument[0] === "-v" || process.argv.length < 3) {
+} else if (argument[0] === "-v") {
   Utils.packageVersion();
 } else {
-  require("../src/server").createFile(config);
+  require("../src").createFile(config);
 }
