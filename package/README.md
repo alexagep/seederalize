@@ -1,7 +1,7 @@
-# Seederalize [![NPM Module](https://img.shields.io/badge/npm%20package-0.8.1-red)](https://github.com/alexagep/seederalize)
+# Seederalize [![NPM Module](https://img.shields.io/badge/npm%20package-0.8.3-red)](https://github.com/alexagep/seederalize)
 
 ***
-Generates seed files for Sequelize from existing databases.
+Generates how many seed files you want for Sequelize from existing databases in less than a second.
 Supported db engines till now:
 * PostgreSQL
 * MySQL
@@ -9,6 +9,8 @@ Supported db engines till now:
 ## Installation
 ### Global module
 To install module globally simply type npm i -g seederalize in your console.
+### Local module
+or use it directly in your project with npm install seederalize
 
 
 
@@ -17,20 +19,37 @@ There are two ways to use this utility:
 - Use step by step wizard which will guide you though the process - just type `npx seederalize` in your console.
 - Provide all parameters through command line(examples below)
 
+```
+Usage:
 
-Use `npx seederalize --help` to see all available parameters with their descriptions. Some basic parameters below:
+const { createFile } = require('seederalize')
+
+createFile({
+    count: 5,
+    output : 'test-seed',
+    username: 'username',
+    password: 'password',
+    database: 'seederalize',
+    host: 'localhost',
+    dialect: 'postgres',
+    logging: false,
+    port: 5432
+  })
+```
+
+Use `npx seederalize --desc` to see all available parameters with their descriptions. Some basic parameters below:
 ```shell
 Usage: seederalize -h <host> -d <database> -p [port] -u <user> -x
 [password] -e [engine]
 
 Options:
-  --help                 Show help command line options                
-  -v, --version          Show version number                           
+  --desc                 Show help command line options                
+  -v                     Show version number                           
   -h, --host             IP address/Hostname for database server
                                                           [default: "127.0.0.1" or "localhost"]
   -d, --database         Database name                             [required] 
-  -u, --user             Username for database server              [default: "postgres"]
-  -x, --pass             Password for database server              [default: "postgres"]
+  -u, --user             Username for database server              [required] 
+  -x, --pass             Password for database server              [required] 
   -p, --port             Port number for database server           [default: 5432]
   -e, --engine           Database engine     
                                     [choices: "postgres", "mysql"]  [default: "postgres"]

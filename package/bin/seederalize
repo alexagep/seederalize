@@ -1,21 +1,17 @@
 #!/usr/bin/env node
-'use strict';
-
+"use strict";
 
 const { argv } = require("../utils/argv");
+const { Utils } = require("../utils/utils");
+const path = require("path");
+const argument = process.argv.splice(2);
 
-const argument = process.argv.splice(2)
+const config = require("../config/config");
 
-const version = ['--version', '-v']
-
-const config = require('../config/config');
-
-
-if (version.includes(argument[0])) {
-    require('../utils/utils').packageVersion()
-} else if (argument[0] === '--help') {
-    require('../utils/utils').showingHelp()
+if (argument[0] === "--desc") {
+  Utils.showingHelp();
+} else if (argument[0] === "-v" || process.argv.length < 3) {
+  Utils.packageVersion();
 } else {
-    require('../src/server').createFile(config)
+  require("../src/server").createFile(config);
 }
-

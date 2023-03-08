@@ -1,4 +1,15 @@
 # Changelog
+## 0.9.0
+
+*  updated extractDataFromObj method to use md5 algorithm instead of bcrypt package for enhancing process speed and better performance
+* using class based methods instead of function based to keep it cleaner to use
+* modified main page to run efficiently executable cli commands 
+* updated package.json file to delete unused script commands
+* implementation of validationCommands methods to validate if both cli commands and createFile function arguments are used in a correctly way or not
+* modified README.md file
+## 0.8.3
+
+*  adding function based usage of package to README file
 ## 0.8.2
 
 * debugging methods to enhace speed of processing 

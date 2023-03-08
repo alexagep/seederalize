@@ -1,57 +1,40 @@
-const {
-  reservationCount,
-  todayDate,
-  packageVersion,
-  randomUUID,
-  randomNumber,
-  randomName,
-  randomEmail,
-  randomUsername,
-  randomRole,
-  getEnumValue,
-  showingHelp,
-} = require("../utils/utils");
+const { Utils, reservationCount } = require("../utils/utils");
 
 const { Queries } = require("../db/services/queries");
 
-// const {showingHelp} = require("../test");
-
 const fs = require("fs");
-const { genSaltSync, hashSync } = require("bcryptjs");
-const { namingFolder, checkFileExists } = require("../utils/folder");
+const { Directory } = require("../utils/folder");
 const { Redis } = require("../utils/redis");
-const { argv } = require("../utils/argv");
-
 const { fillUpConfigObj } = require("../config/connection");
+const md5 = require("md5");
 
 async function generateStructure(relations) {
-
-  for (const rel of relations) {
-
+  for (let j = 0; j < relations.length; j++) {
     const tableForeignKey = JSON.parse(
-      await Redis.getData(rel.tablewithforeignkey)
+      await Redis.getData(relations[j].tablewithforeignkey)
     );
 
     const tableReferenced = JSON.parse(
-      await Redis.getData(rel.tablereferenced)
+      await Redis.getData(relations[j].tablereferenced)
     );
 
     for (let i = 0; i < tableForeignKey.length; i++) {
-      tableForeignKey[i][rel.foreignkeycolumn] =
-        tableReferenced[i][rel.foreignkeycolumnreferenced];
+      tableForeignKey[i][relations[j].foreignkeycolumn] =
+        tableReferenced[i][relations[j].foreignkeycolumnreferenced];
     }
 
     await Redis.setData(
-      rel.tablewithforeignkey,
+      relations[j].tablewithforeignkey,
       JSON.stringify(Object.values(tableForeignKey))
     );
   }
 }
 
 function createModelStructure(model) {
-  const singularModel = model.slice(0, -1);
+  try {
+    const singularModel = model.slice(0, -1);
 
-  const structure = `export default (sequelize, DataTypes) => {
+    const structure = `export default (sequelize, DataTypes) => {
       const ${singularModel} = sequelize.define(${model}, {
         name: {
           type: DataTypes.STRING,
@@ -64,27 +47,35 @@ function createModelStructure(model) {
       return ${singularModel};
     };`;
 
-  return structure;
+    return structure;
+  } catch (error) {
+    throw new Error(error);
+  }
 }
 
 async function seedTypeStructure(model, columns) {
-  const column = columns[model];
+  try {
+    const column = columns[model];
 
-  const obj = {};
+    const obj = {};
 
-  column.forEach((col) => {
-    if (col.column_name !== "deleted_at") {
-      obj[col.column_name] = MatchColumnTypes(col);
-    }
-  });
+    column.forEach((col) => {
+      if (col.column_name !== "deleted_at") {
+        obj[col.column_name] = MatchColumnTypes(col);
+      }
+    });
 
-  return obj;
+    return obj;
+  } catch (error) {
+    throw new Error(error);
+  }
 }
 
 async function createSeedStructure(model) {
-  const objType = JSON.parse(await Redis.getData(model));
+  try {
+    const objType = JSON.parse(await Redis.getData(model));
 
-  const structure = `
+    const structure = `
     export default {
       async up(queryInterface) {
     
@@ -100,107 +91,92 @@ async function createSeedStructure(model) {
       },
     }`;
 
-  return structure;
+    return structure;
+  } catch (error) {
+    throw new Error(error);
+  }
 }
 
-async function generateSeedData(models, columns, count, arg) {
-  models.forEach(async (model) => {
-    const obj = await seedTypeStructure(model, columns);
+async function generateSeedData(models, columns, count) {
+  try {
+    models.forEach(async (model) => {
+      const obj = await seedTypeStructure(model, columns);
 
-    const now = new Date();
+      const objArr = [];
 
-    console.log('afterSeedTypeStructure', new Date() - arg.now);
-    
-    const objArr = [];
+      for (let i = 0; i < count; i++) {
+        let newObj = extractDataFromObj(obj);
 
-    // const now = new Date();
-    for (let i = 0; i < count; i++) {
-      // let newObj = {};
-      // const randomString = randomUsername(10);
+        objArr.push(newObj);
+      }
 
-      // console.log('before-extractDataFromObj', new Date() - arg.now);
-
-      const beforeExtractDataFromObj = new Date();
-
-      let newObj = extractDataFromObj(obj)
-
-      console.log('after-extractDataFromObj', new Date() - beforeExtractDataFromObj);
-
-
-      objArr.push(newObj);
-    }
-    console.log('generateSeedData', new Date() - now);
-
-    await Redis.setData(model, JSON.stringify(objArr));
-  });
+      await Redis.setData(model, JSON.stringify(objArr));
+    });
+  } catch (error) {
+    throw new Error(error);
+  }
 }
 
-function extractDataFromObj (obj) {
-  const randomString = randomUsername(10);
+function hashPass(rawPassword) {
+  const salt = 15;
+
+  const rounds = 10;
+
+  let hashed = md5(rawPassword + salt);
+  for (let i = 0; i <= rounds; i++) {
+    hashed = md5(hashed);
+  }
+
+  return `${salt}$${rounds}$${hashed}`;
+}
+
+function extractDataFromObj(obj) {
+  const randomString = Utils.randomUsername(10);
   let newObj = {};
 
-  console.log(Object.keys(obj)[0]);
-  // for (const key in obj) {
-    for (let index = 0; index < Object.keys(obj).length; index++) {
-      if (Object.values(obj)[index] === "UUID") {
-        newObj[Object.keys(obj)[index]] = randomUUID();
-      } else if (Object.values(obj)[index] === "JSONB" || Object.values(obj)[index] === "JSON") {
-        newObj[Object.keys(obj)[index]] = "{}";
-      } else if (Object.values(obj)[index]=== "Date") {
-        newObj[Object.keys(obj)[index]] = new Date().toISOString();
-      } else if (Object.values(obj)[index] === "password") {
-        newObj[Object.keys(obj)[index]] = hashSync(randomString, genSaltSync(12));
-      } else if (Object.values(obj)[index] === "role") {
-        newObj[Object.keys(obj)[index]] = randomRole(1);
-      } else if (Object.values(obj)[index] === "roles") {
-        newObj[Object.keys(obj)[index]] = randomRole(2);
-      } else if (Object.values(obj)[index].toString().toLowerCase() === "username") {
-        newObj[Object.keys(obj)[index]] = randomString;
-      } else if (Object.values(obj)[index].includes("name") && Object.keys(obj)[index] != "username") {
-        newObj[Object.keys(obj)[index]] = randomName(10);
-      } else if (
-        (Object.values(obj)[index]=== "STRING" && Object.keys(obj)[index].includes("number")) ||
-        (Object.values(obj)[index] === "STRING" && Object.keys(obj)[index].includes("code"))
-      ) {
-        newObj[Object.keys(obj)[index]] = randomNumber(10);
-      } else if (Object.values(obj)[index].includes("email")) {
-        newObj[Object.keys(obj)[index]] = randomEmail();
-      } else if (Object.values(obj)[index] === "STRING") {
-        newObj[Object.keys(obj)[index]] = randomString;
-      } else if (Array.isArray(Object.values(obj)[index])) {
-        newObj[Object.keys(obj)[index]] = getEnumValue(Object.values(obj)[index]);
-      }
-    // }
-    // if (obj[key] === "UUID") {
-    //   newObj[key] = randomUUID();
-    // } else if (obj[key] === "JSONB" || obj[key] === "JSON") {
-    //   newObj[key] = "{}";
-    // } else if (obj[key] === "Date") {
-    //   newObj[key] = new Date().toISOString();
-    // } else if (key === "password") {
-    //   newObj[key] = hashSync(randomString, genSaltSync(12));
-    // } else if (key === "role") {
-    //   newObj[key] = randomRole(1);
-    // } else if (key === "roles") {
-    //   newObj[key] = randomRole(2);
-    // } else if (key.toLowerCase() === "username") {
-    //   newObj[key] = randomString;
-    // } else if (key.includes("name") && key != "username") {
-    //   newObj[key] = randomName(10);
-    // } else if (
-    //   (obj[key] === "STRING" && key.includes("number")) ||
-    //   (obj[key] === "STRING" && key.includes("code"))
-    // ) {
-    //   newObj[key] = randomNumber(10);
-    // } else if (key.includes("email")) {
-    //   newObj[key] = randomEmail();
-    // } else if (obj[key] === "STRING") {
-    //   newObj[key] = randomString;
-    // } else if (Array.isArray(obj[key])) {
-    //   newObj[key] = getEnumValue(obj[key]);
-    // }
+  for (let index = 0; index < Object.keys(obj).length; index++) {
+    if (Object.values(obj)[index] === "UUID") {
+      newObj[Object.keys(obj)[index]] = Utils.randomUUID();
+    } else if (
+      Object.values(obj)[index] === "JSONB" ||
+      Object.values(obj)[index] === "JSON"
+    ) {
+      newObj[Object.keys(obj)[index]] = "{}";
+    } else if (Object.values(obj)[index] === "Date") {
+      newObj[Object.keys(obj)[index]] = new Date().toISOString();
+    } else if (Object.keys(obj)[index] === "password") {
+      newObj[Object.keys(obj)[index]] = hashPass(randomString);
+    } else if (Object.keys(obj)[index] === "role") {
+      newObj[Object.keys(obj)[index]] = Utils.randomRole(1);
+    } else if (Object.keys(obj)[index] === "roles") {
+      newObj[Object.keys(obj)[index]] = Utils.randomRole(2);
+    } else if (
+      Object.keys(obj)[index].toString().toLowerCase() === "username"
+    ) {
+      newObj[Object.keys(obj)[index]] = randomString;
+    } else if (
+      Object.keys(obj)[index].includes("name") &&
+      Object.keys(obj)[index] != "username"
+    ) {
+      newObj[Object.keys(obj)[index]] = Utils.randomName(10);
+    } else if (
+      (Object.values(obj)[index] === "STRING" &&
+        Object.keys(obj)[index].includes("number")) ||
+      (Object.values(obj)[index] === "STRING" &&
+        Object.keys(obj)[index].includes("code"))
+    ) {
+      newObj[Object.keys(obj)[index]] = Utils.randomNumber(10);
+    } else if (Object.keys(obj)[index].includes("email")) {
+      newObj[Object.keys(obj)[index]] = Utils.randomEmail();
+    } else if (Object.values(obj)[index] === "STRING") {
+      newObj[Object.keys(obj)[index]] = randomString;
+    } else if (Array.isArray(Object.values(obj)[index])) {
+      newObj[Object.keys(obj)[index]] = Utils.getEnumValue(
+        Object.values(obj)[index]
+      );
+    }
   }
-  return newObj
+  return newObj;
 }
 
 function MatchColumnTypes(col) {
@@ -449,53 +425,47 @@ async function sortModelsBasedOnRelations(relations, tables) {
 }
 
 async function createFile(arg) {
-  const db = fillUpConfigObj(arg);
+  try {
+    const db = fillUpConfigObj(arg);
 
-  console.log('fillUpConfigObj', new Date() - arg.now);
+    const count = arg.count,
+      folderName = arg.output,
+      dbData = await Queries.getData(db),
+      relations = dbData.relations,
+      models = dbData.tables,
+      columns = dbData.columns,
+      tables = await sortModelsBasedOnRelations(relations, models);
 
-  const count = arg.count,
-    folderName = arg.output,
-    dbData = await Queries.getData(db),
-    relations = dbData.relations,
-    models = dbData.tables,
-    columns = dbData.columns,
-    tables = await sortModelsBasedOnRelations(relations, models);
+    await generateSeedData(models, columns, count);
 
-  console.log('afterQueries', new Date() - arg.now);
+    await generateStructure(relations);
 
+    Directory.namingFolder(folderName);
 
-  await generateSeedData(models, columns, count, arg);
-  
-  console.log('afterGenerateSeedData', new Date() - arg.now);
+    let today = Utils.todayDate();
 
-  
-  await generateStructure(relations);
+    tables.forEach(async (table) => {
+      const randomNum = reservationCount();
 
-  namingFolder(folderName);
+      const structure = await createSeedStructure(table);
 
-  let today = todayDate();
+      const lowerCaseFileName = table.toLowerCase();
+      const fileDest = Directory.checkFileExists(lowerCaseFileName, folderName);
 
-  tables.forEach(async (table) => {
-    const randomNum = reservationCount();
- 
-    const sturcture = await createSeedStructure(table);
+      const fileName = !fileDest
+        ? `${folderName}/seeders/${today}${randomNum}-create-${lowerCaseFileName}.js`
+        : `${folderName}/seeders/${fileDest}`;
 
-    const lowerCaseFileName = table.toLowerCase();
-    const fileDest = checkFileExists(lowerCaseFileName, folderName);
-
-    const fileName = !fileDest
-      ? `${folderName}/seeders/${today}${randomNum}-create-${lowerCaseFileName}.js`
-      : `${folderName}/seeders/${fileDest}`;
-
-    fs.writeFile(fileName, `${sturcture}`, () => {});
-
-    console.log('afterFileWriting', new Date() - arg.now);
-
-  });
+      fs.writeFile(fileName, `${structure}`, () => {});
+      console.log(new Date() - arg.now);
+    });
+  } catch (error) {
+    throw new Error(error);
+  }
 }
 
-// setTimeout((function () {
-//   return process.exit(0)
-// }), 3000);
+setTimeout(function () {
+  return process.exit(0);
+}, 3000);
 
 module.exports = { createFile };
