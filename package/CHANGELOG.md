@@ -1,4 +1,8 @@
 # Changelog
+## 0.9.2
+* updated README file to explain how we hashed password and how users can compare them with their own passwords
+* added prittier ignore file
+* removed test files wich were being used for function testing
 ## 0.9.1
 * updated bin/seederalize file to avoid problems with cli commands error handling
 * renamed server file as main file to index file
@@ -7,7 +11,7 @@
 
 *  updated extractDataFromObj method to use md5 algorithm instead of bcrypt package for enhancing process speed and better performance
 * using class based methods instead of function based to keep it cleaner to use
-* modified main page to run efficiently executable cli commands 
+* modified main page to run efficiently executable cli commands
 * updated package.json file to delete unused script commands
 * implementation of validationCommands methods to validate if both cli commands and createFile function arguments are used in a correctly way or not
 * modified README.md file
@@ -16,7 +20,7 @@
 *  adding function based usage of package to README file
 ## 0.8.2
 
-* debugging methods to enhace speed of processing 
+* debugging methods to enhace speed of processing
 ## 0.8.1
 
 * modifying README file
@@ -33,7 +37,7 @@
 * modifying main file address in package.json
 ## 0.5.0
 
-* adding process killer function 
+* adding process killer function
 ## 0.4.0
 
 * add demo directory for testing purposes
@@ -57,4 +61,4 @@
 
 ## 0.1.0
 
-* first release of the library 
+* first release of the library
