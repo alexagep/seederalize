@@ -1,6 +1,6 @@
 {
   "name": "seederalize",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "description": "Generates seeder file for sequelize from existing databases",
   "main": "./src/index.js",
   "bin": {
@@ -11,7 +11,7 @@
     "prepublishOnly": "npm run lint",
     "preversion": "npm run lint",
     "format": "prettier --write \"src/**/*.js\"",
-    "test": "cross-env NODE_ENV=test  jest ./tests/index.test.js --collectCoverage --forceExit"
+    "test": "jest ./tests/index.test.js --collectCoverage --forceExit"
   },
   "keywords": [],
   "author": "Ali_Aghapour @alexagep",

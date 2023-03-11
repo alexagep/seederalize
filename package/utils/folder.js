@@ -31,6 +31,7 @@ class Directory {
     let fileDest = null
 
     const folder = fs.readdirSync(`${process.cwd()}/${folderName}/seeders`)
+
     folder.forEach((file) => {
       file = file.split('-')
 

@@ -1,4 +1,6 @@
 # Changelog
+## 0.9.5
+* added unit tests
 ## 0.9.4
 * added jsdoc documents to functions
 ## 0.9.3
