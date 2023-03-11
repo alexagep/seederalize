@@ -1,10 +1,10 @@
 {
-  "name": "seederalize",
-  "version": "0.9.2",
+  "name": "@alexagep/seederalize",
+  "version": "0.9.3",
   "description": "Generates seeder file for sequelize from existing databases",
   "main": "./src/index.js",
   "bin": {
-    "seederalize": "./bin/seederalize"
+    "seederalize": "bin/seederalize"
   },
   "scripts": {
     "lint": "eslint",
@@ -17,13 +17,16 @@
   "author": "Ali_Aghapour @alexagep",
   "repository": {
     "type": "git",
-    "url": "https://github.com/alexagep/seederalize"
+    "url": "git+https://github.com/alexagep/seederalize.git"
   },
   "bugs": {
     "url": "https://github.com/alexagep/seederalize.git/issues"
   },
   "homepage": "https://github.com/alexagep/seederalize#readme",
   "license": "MIT",
+  "publishConfig": {
+    "@ilianov:registry": "https://npm.pkg.github.com"
+  },
   "dependencies": {
     "dotenv": "*",
     "ioredis": "^5.3.0",
@@ -39,5 +42,8 @@
     "esm": "3.2.25",
     "jest": "^29.4.3",
     "prettier": "^2.8.4"
+  },
+  "directories": {
+    "test": "tests"
   }
 }

@@ -1,4 +1,6 @@
 # Changelog
+## 0.9.3
+* added workflows directory
 ## 0.9.2
 * updated README file to explain how we hashed password and how users can compare them with their own passwords
 * added prittier ignore file
