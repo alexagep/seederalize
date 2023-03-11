@@ -10,6 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "seederalize": "^0.7.0"
+    "seederalize": "^0.9.2"
   }
 }

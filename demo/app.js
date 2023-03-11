@@ -1,18 +1,15 @@
-// require('../package/src/server');
+// const { createFile } = require("../package/src/index");
 
-
-// console.log(seederalize.createFile({count: 2, output: 'gateway'}));
-
-const { createFile } = require('../package/src/server');
+const { createFile } = require('seederalize')
 
 createFile({
-    count: 2,
-    output : 'db-v-2',
-    username: 'postgres',
-    password: 'ev3VJFD5jAR6b9@',
-    database: 'mocker',
-    host: 'localhost',
-    dialect: 'postgres',
-    logging: false,
-    port: 5432
-  })
+  count: 100,
+  output: "db-v",
+  username: "postgres",
+  password: "ev3VJFD5jAR6b9@",
+  database: "mocker",
+  host: "localhost",
+  dialect: "postgres",
+  logging: false,
+  port: 5432,
+});
