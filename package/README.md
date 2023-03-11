@@ -1,4 +1,4 @@
-# Seederalize [![NPM Module](https://img.shields.io/badge/npm%20package-0.9.3-red)](https://github.com/alexagep/seederalize)
+# Seederalize [![NPM Module](https://img.shields.io/badge/npm%20package-0.9.4-red)](https://github.com/alexagep/seederalize)
 
 ***
 Generates how many seed files you want for Sequelize from existing databases in less than a second.

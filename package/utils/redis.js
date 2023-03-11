@@ -1,15 +1,27 @@
-const ioRedis = require("ioredis");
+const ioRedis = require('ioredis')
 
-const redis = new ioRedis();
+const redis = new ioRedis()
 
 class Redis {
-
+  /**
+   * reads data from our local redis server by the passed key
+   * @type {function}
+   * @function getData
+   * @param {string} key
+   */
   static async getData(key) {
-    const data = JSON.parse(await redis.get(key));
+    const data = JSON.parse(await redis.get(key))
 
-    return data;
+    return data
   }
 
+  /**
+   * it will sets data into redis by passing key and value
+   * @type {function}
+   * @function setData
+   * @param {string} key
+   * @param {string} value
+   */
   static async setData(key, value) {
     await redis.set(key, JSON.stringify(value))
   }

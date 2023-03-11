@@ -1,37 +1,58 @@
 // const { sequelize } = require("../../config/connection");
 
 class Queries {
-
-  static async getData (db) {
-    const tables = await this.GetAllTables(db) 
-    const columns = await this.GetCoulmnsFromEntity(db) 
+  /**
+   * it will initialize our queries by passed db object and returns their results
+   * @type {function}
+   * @function getData
+   * @param {object} { tables, columns, relations }
+   */
+  static async getData(db) {
+    const tables = await this.GetAllTables(db)
+    const columns = await this.GetCoulmnsFromEntity(db)
     const relations = await this.GetRelations(db)
 
     return {
-      tables, columns, relations
+      tables,
+      columns,
+      relations,
     }
   }
 
+  /**
+   * it will run a query to get all tables
+   * @type {function}
+   * @function GetAllTables
+   * @param {object} db
+   * @return {object} db
+   */
   static async GetAllTables(db) {
     const response = await db.sequelize
       .query(`SELECT table_schema as "TABLE_SCHEMA", table_name as "TABLE_NAME", table_catalog as "DB_NAME"
     from INFORMATION_SCHEMA.TABLES
     WHERE TABLE_TYPE = 'BASE TABLE'
     AND table_schema not in ('pg_catalog', 'information_schema');
-   `);
+   `)
 
-    const tables = [];
+    const tables = []
     response[0].forEach((val) => {
-      if (val.TABLE_NAME !== "SequelizeMeta") {
-        tables.push(val.TABLE_NAME);
+      if (val.TABLE_NAME !== 'SequelizeMeta') {
+        tables.push(val.TABLE_NAME)
       }
-    });
+    })
 
-    return tables;
+    return tables
   }
 
+  /**
+   * it will run a query to get columns of tables
+   * @type {function}
+   * @function GetCoulmnsFromEntity
+   * @param {object} db
+   * @return {object} db
+   */
   static async GetCoulmnsFromEntity(db) {
-    const ret = {};
+    const ret = {}
 
     const response = await db.sequelize
       .query(`SELECT table_name,column_name,udt_name,column_default,is_nullable,
@@ -56,17 +77,24 @@ class Queries {
                   ) enumValues
                       FROM INFORMATION_SCHEMA.COLUMNS c
                       where table_schema not in ('pg_catalog', 'information_schema');
-                      `);
+                      `)
 
     response[0].map((val) => {
-      if (val.table_name !== "SequelizeMeta") {
-        (ret[val.table_name] || (ret[val.table_name] = [])).push(val);
+      if (val.table_name !== 'SequelizeMeta') {
+        ;(ret[val.table_name] || (ret[val.table_name] = [])).push(val)
       }
-    });
+    })
 
-    return ret;
+    return ret
   }
 
+  /**
+   * it will run a query to get relations of tables
+   * @type {function}
+   * @function GetRelations
+   * @param {object} db
+   * @return {object} db
+   */
   static async GetRelations(db) {
     const response = await db.sequelize.query(`SELECT DISTINCT
     con.relname AS tablewithforeignkey,
@@ -107,12 +135,11 @@ class Queries {
         AND att2.attrelid = con.conrelid
         AND att2.attnum = con.parent
         AND rc.constraint_name= con.conname AND constraint_catalog=current_database() AND rc.constraint_schema=nspname
-        `);
+        `)
 
     // console.log(response[0], "***************");
-    return response[0];
+    return response[0]
   }
 }
 
-
-module.exports = { Queries };
+module.exports = { Queries }

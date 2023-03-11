@@ -1,16 +1,23 @@
-const { Sequelize } = require("sequelize");
-const { validationCommands } = require("../utils/validateConfig");
-const config = require("./config");
+const { Sequelize } = require('sequelize')
+const { validationCommands } = require('../utils/validateConfig')
+const config = require('./config')
 
+/**
+ * it will initialize database by the passed config and returns db sequelize to use it in our queries
+ * @type {function}
+ * @function fillUpConfigObj
+ * @param {object} option
+ * @return {object} db
+ */
 function fillUpConfigObj(option) {
   try {
-    validationCommands(option);
+    validationCommands(option)
 
-    const db = {};
+    const db = {}
 
     for (const key in config) {
       if (option[key]) {
-        config[key] = option[key];
+        config[key] = option[key]
       }
     }
 
@@ -24,15 +31,15 @@ function fillUpConfigObj(option) {
         port: config.port,
         logging: config.logging,
       }
-    );
+    )
 
-    db.sequelize = sequelize;
-    db.Sequelize = Sequelize;
+    db.sequelize = sequelize
+    db.Sequelize = Sequelize
 
-    return db;
+    return db
   } catch (error) {
-    throw (`Invalid Configuration: ${error.message}`);
+    throw `Invalid Configuration: ${error.message}`
   }
 }
 
-module.exports = { fillUpConfigObj };
+module.exports = { fillUpConfigObj }

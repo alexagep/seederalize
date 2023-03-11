@@ -1,3 +1,8 @@
+/**
+ * this function validates commands to check if the required fields are used or not
+ * @type {function}
+ * @function validationCommands
+ */
 const validationCommands = (option) => {
   try {
     let errorCollect = []

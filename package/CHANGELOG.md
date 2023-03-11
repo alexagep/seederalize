@@ -1,4 +1,6 @@
 # Changelog
+## 0.9.4
+* added jsdoc documents to functions
 ## 0.9.3
 * added workflows directory
 ## 0.9.2

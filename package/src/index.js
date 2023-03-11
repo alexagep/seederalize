@@ -6,7 +6,6 @@ const fs = require("fs");
 const { Directory } = require("../utils/folder");
 const { Redis } = require("../utils/redis");
 const { fillUpConfigObj } = require("../config/connection");
-const md5 = require("md5");
 
 async function generateStructure(relations) {
   for (let j = 0; j < relations.length; j++) {
@@ -78,14 +77,14 @@ async function createSeedStructure(model) {
     const structure = `
     export default {
       async up(queryInterface) {
-    
+
         await queryInterface.bulkInsert(
           '${model}',
             ${JSON.stringify(objType)},
           {}
         )
       },
-    
+
       async down(queryInterface) {
         await queryInterface.bulkDelete('${model}', null, {})
       },
@@ -117,19 +116,6 @@ async function generateSeedData(models, columns, count) {
   }
 }
 
-function hashPass(rawPassword) {
-  const salt = 15;
-
-  const rounds = 10;
-
-  let hashed = md5(rawPassword + salt);
-  for (let i = 0; i <= rounds; i++) {
-    hashed = md5(hashed);
-  }
-
-  return `${salt}$${rounds}$${hashed}`;
-}
-
 function extractDataFromObj(obj) {
   const randomString = Utils.randomUsername(10);
   let newObj = {};
@@ -145,7 +131,7 @@ function extractDataFromObj(obj) {
     } else if (Object.values(obj)[index] === "Date") {
       newObj[Object.keys(obj)[index]] = new Date().toISOString();
     } else if (Object.keys(obj)[index] === "password") {
-      newObj[Object.keys(obj)[index]] = hashPass(randomString);
+      newObj[Object.keys(obj)[index]] = Utils.hashPass(randomString);
     } else if (Object.keys(obj)[index] === "role") {
       newObj[Object.keys(obj)[index]] = Utils.randomRole(1);
     } else if (Object.keys(obj)[index] === "roles") {
