@@ -1,4 +1,6 @@
 # Changelog
+## 0.9.6
+* updating README.md file
 ## 0.9.5
 * added unit tests
 ## 0.9.4
