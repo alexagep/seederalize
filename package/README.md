@@ -25,8 +25,8 @@ Usage:
 const { createFile } = require('seederalize')
 
 createFile({
-    count: 5,
-    output : 'test-seed',
+    count: 5, // number of files to create
+    output : 'test-seed', // output file
     username: 'username',
     password: 'password',
     database: 'seederalize',
