@@ -8,6 +8,7 @@ const { Redis } = require("../utils/redis");
 const { fillUpConfigObj } = require("../config/connection");
 
 async function generateStructure(relations) {
+  // start of the generation
   for (let j = 0; j < relations.length; j++) {
     const tableForeignKey = JSON.parse(
       await Redis.getData(relations[j].tablewithforeignkey)
