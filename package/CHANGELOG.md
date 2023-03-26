@@ -1,4 +1,8 @@
 # Changelog
+## 0.9.7
+* Removed unnecessary file(sequelize.js) from root directory
+## 0.9.6
+* updating README.md file
 ## 0.9.5
 * added unit tests
 ## 0.9.4
