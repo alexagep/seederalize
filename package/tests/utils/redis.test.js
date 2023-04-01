@@ -2,9 +2,6 @@ const redis = require('ioredis')
 const { promisify } = require('util')
 const { Redis } = require('../../utils/redis')
 
-// mock redis client
-// const redisClient = redis.createClient()
-// const redisGetAsync = promisify(redisClient.get).bind(redisClient)
 jest.mock('ioredis', () => {
   const mIORedis = jest.fn(() => ({
     get: jest.fn().mockResolvedValue('mocked-value'),
