@@ -1,4 +1,6 @@
 # Changelog
+## 0.9.8
+* adding a unit test for checkFileExists method
 ## 0.9.7
 * Removed unnecessary file(sequelize.js) from root directory
 ## 0.9.6
