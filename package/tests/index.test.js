@@ -1,9 +1,14 @@
+const { describe } = require('yargs');
 const folderTest = require('./utils/folder.test');
-
+const redisTest = require('./utils/redis.test');
 
 describe('unit testing the methods', () => {
 
-  describe('Bcrypt:', () => {
+  describe('Folder:', () => {
     folderTest()
+  })
+
+  describe('Redis', () => {
+    redisTest()
   })
 })
