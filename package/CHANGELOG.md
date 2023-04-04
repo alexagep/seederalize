@@ -1,4 +1,6 @@
 # Changelog
+## 0.9.10
+* adding a unit test for redis method
 ## 0.9.9
 * adding a unit test for namingFolder method
 ## 0.9.8

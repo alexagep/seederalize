@@ -1,55 +1,60 @@
-const redis = require('ioredis')
-const { promisify } = require('util')
+const ioRedis = require('ioredis')
 const { Redis } = require('../../utils/redis')
 
-jest.mock('ioredis', () => {
-  const mIORedis = jest.fn(() => ({
-    get: jest.fn().mockResolvedValue('mocked-value'),
-  }))
-  return mIORedis
-})
+jest.mock('ioredis')
 
 const redisTest = () => {
-  describe('getData', () => {
-    const mockIORedisClient = new redis()
-    const ioredisGetAsync = promisify(mockIORedisClient.get).bind(mockIORedisClient)
-
-    test('should return parsed JSON data from redis', async () => {
-      const data = { name: 'John', age: 30 }
-      mockIORedisClient.get.mockImplementationOnce((key, cb) =>
-        cb(null, JSON.stringify(data))
-      )
-
-      const result = await Redis.getData('test-key')
-
-      expect(mockIORedisClient.get).toHaveBeenCalledWith(
-        'test-key',
-        expect.any(Function)
-      )
-      expect(result).toEqual(data)
+  describe('Redis', () => {
+    beforeEach(() => {
+      ioRedis.mockClear()
+      ioRedis.prototype.get.mockClear()
+      ioRedis.prototype.set.mockClear()
     })
 
-    test('should return null if redis key does not exist', async () => {
-      mockIORedisClient.get.mockImplementationOnce((key, cb) => cb(null, null))
+    describe('getData', () => {
+      test('should get data from redis', async () => {
+        const key = 'myKey'
+        const expectedValue = { foo: 'bar' }
+        ioRedis.prototype.get.mockResolvedValue(JSON.stringify(expectedValue))
 
-      const result = await Redis.getData('non-existent-key')
+        const result = await Redis.getData(key)
 
-      expect(mockIORedisClient.get).toHaveBeenCalledWith(
-        'non-existent-key',
-        expect.any(Function)
-      )
-      expect(result).toBeNull()
+        expect(ioRedis.prototype.get).toHaveBeenCalledWith(key)
+        expect(result).toEqual(expectedValue)
+      })
+
+      test('should return null if key is not present in redis', async () => {
+        ioRedis.prototype.get.mockResolvedValue(null)
+
+        const result = await Redis.getData('non-existing-key')
+
+        expect(result).toBeNull()
+        expect(ioRedis.prototype.get).toHaveBeenCalledWith('non-existing-key')
+      })
+
+      test('should throw error if key is not provided', async () => {
+        await expect(Redis.getData()).rejects.toThrow('key is required')
+      })
     })
 
-    test('should throw an error if redis client returns an error', async () => {
-      const mockError = new Error('Redis error')
-      mockIORedisClient.get.mockImplementationOnce((key, cb) => cb(mockError, null))
+    describe('setData', () => {
+      test('should set data in redis', async () => {
+        const key = 'myKey'
+        const value = { foo: 'bar' }
 
-      await expect(Redis.getData('test-key')).rejects.toThrow(mockError)
-      expect(mockIORedisClient.get).toHaveBeenCalledWith(
-        'test-key',
-        expect.any(Function)
-      )
+        await Redis.setData(key, value)
+
+        expect(ioRedis.prototype.set).toHaveBeenCalledWith(
+          key,
+          JSON.stringify(value)
+        )
+      })
+
+      test('should throw error if value is not provided', async () => {
+        await expect(Redis.setData('some-key')).rejects.toThrow(
+          'value is required'
+        )
+      })
     })
   })
 }

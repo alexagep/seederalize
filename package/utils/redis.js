@@ -3,6 +3,7 @@ const ioRedis = require('ioredis')
 const redis = new ioRedis()
 
 class Redis {
+
   /**
    * reads data from our local redis server by the passed key
    * @type {function}
@@ -10,6 +11,9 @@ class Redis {
    * @param {string} key
    */
   static async getData(key) {
+    if (!key) {
+      throw new Error('key is required');
+    }
     const data = JSON.parse(await redis.get(key))
 
     return data
@@ -23,6 +27,9 @@ class Redis {
    * @param {string} value
    */
   static async setData(key, value) {
+    if (!value) {
+      throw new Error('value is required');
+    }
     await redis.set(key, JSON.stringify(value))
   }
 }

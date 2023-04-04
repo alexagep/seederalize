@@ -1,4 +1,3 @@
-const { describe } = require('yargs');
 const folderTest = require('./utils/folder.test');
 const redisTest = require('./utils/redis.test');
 
